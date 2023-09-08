@@ -17,6 +17,9 @@ def x():
     return Conductor(vs2, [x for x in range(0, 8)],
                      {MIDI.LEVEL: EnvelopeA(100, 64)})
 
+def y(c):
+    return ConductorDriver(c, [Pin(x, machine.Pin.IN, machine.Pin.PULL_UP) for x in range(0, 4)])
+
 def main():
     uart = midi_uart_config()
     midi = MIDI(uart)

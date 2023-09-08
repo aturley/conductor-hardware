@@ -1,9 +1,14 @@
-from machine import Timer
+from machine import Pin, Timer
 
 class ConductorDriver:
-    def __init__(self, conductor):
+    def __init__(self, conductor, event_pins):
         self.tim = None
         self.conductor = conductor
+
+        eps = event_pins[:]
+
+        for ep in event_pins:
+            ep.irq(trigger=Pin.IRQ_FALLING, handler=lambda p: self.conductor.add_trigger([eps.index(p), 1]))
 
     def start(self, interval):
         if self.tim:

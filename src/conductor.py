@@ -28,6 +28,8 @@ class Conductor:
         self.param_gens = param_gens.copy()
         self.param_base = param_base.copy()
         self.recent_triggers = []
+        self.button_states = [0, 0, 0, 0, 0]
+        self.pot_states = [0, 0, 0]
 
     def initialize(self):
         for p, v in self.param_base.items():
@@ -60,7 +62,11 @@ class Conductor:
         self.step = self.step + 1
 
     def generate_params(self):
-        return [[p, self.param_base[p] + v(self.step, self.recent_triggers)] for p, v in self.param_gens.items()]
+        return [[p, self.param_base[p] +
+                 v(self.step,
+                   self.recent_triggers,
+                   self.button_states,
+                   self.pot_states)] for p, v in self.param_gens.items()]
 
     def grain(self):
         self.play_next_with_param_values(self.generate_params())
@@ -75,7 +81,7 @@ class EnvelopeA:
         self.steps_left = 0
         self.current_value = 0
 
-    def __call__(self, steps, recent_triggers):
+    def __call__(self, steps, recent_triggers, button_states, pot_states):
         for rt in recent_triggers:
             if rt[0] == 1:
                 self.steps_left = self.attack_steps
