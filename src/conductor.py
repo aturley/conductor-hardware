@@ -41,6 +41,9 @@ class Conductor:
     def add_trigger(self, trigger):
         self.recent_triggers.append(trigger)
 
+    def set_pot_states(self, pot_states):
+        self.pot_states = pot_states[:]
+
     def set_param_gens(self, param_gens):
         self.param_gens = param_gens[:]
 

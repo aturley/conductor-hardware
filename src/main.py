@@ -1,7 +1,7 @@
 """
 """
 
-from machine import Pin, UART
+from machine import Pin, UART, ADC
 
 from volcasample2 import VolcaSample2, MIDI
 from conductor import Conductor, EnvelopeA
@@ -15,10 +15,13 @@ def x():
     midi = MIDI(uart)
     vs2 = VolcaSample2(midi)
     return Conductor(vs2, [x for x in range(0, 8)],
-                     {MIDI.LEVEL: EnvelopeA(100, 64)})
+                     {MIDI.LEVEL: EnvelopeA(100, 64),
+                      MIDI.SPEED: lambda s, rt, bs, ps: (ps[0] >> 5) - 16})
 
 def y(c):
-    return ConductorDriver(c, [Pin(x, machine.Pin.IN, machine.Pin.PULL_UP) for x in range(0, 4)])
+    return ConductorDriver(c,
+                           [Pin(x, machine.Pin.IN, machine.Pin.PULL_UP) for x in range(0, 4)],
+                           [ADC(26), ADC(27), ADC(28)])
 
 def main():
     uart = midi_uart_config()
