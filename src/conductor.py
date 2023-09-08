@@ -27,10 +27,17 @@ class Conductor:
         self.step = 0
         self.param_gens = param_gens.copy()
         self.param_base = param_base.copy()
+        self.recent_triggers = []
 
     def initialize(self):
         for p, v in self.param_base.items():
             self.vs2.set_param(self.voices, p, v)
+
+    def clear_triggers(self):
+        self.recent_triggers = []
+
+    def add_trigger(self, trigger):
+        self.recent_triggers.append(trigger)
 
     def set_param_gens(self, param_gens):
         self.param_gens = param_gens[:]
@@ -53,8 +60,31 @@ class Conductor:
         self.step = self.step + 1
 
     def generate_params(self):
-        return [[p, self.param_base[p] + v(self.step)] for p, v in self.param_gens.items()]
+        return [[p, self.param_base[p] + v(self.step, self.recent_triggers)] for p, v in self.param_gens.items()]
 
     def grain(self):
         self.play_next_with_param_values(self.generate_params())
+        self.clear_triggers()
         self.next_step()
+
+
+class EnvelopeA:
+    def __init__(self, attack_steps, max_value):
+        self.attack_steps = attack_steps
+        self.max_value = max_value
+        self.steps_left = 0
+        self.current_value = 0
+
+    def __call__(self, steps, recent_triggers):
+        for rt in recent_triggers:
+            if rt[0] == 1:
+                self.steps_left = self.attack_steps
+                self.current_value = 0
+
+        if self.steps_left > 0:
+            self.current_value = ((self.attack_steps - self.steps_left) * self.max_value) // self.attack_steps
+            self.steps_left = self.steps_left - 1
+
+        return self.current_value
+
+     
