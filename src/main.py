@@ -2,9 +2,10 @@
 """
 
 from machine import Pin, UART, ADC
+import random
 
 from volcasample2 import VolcaSample2, MIDI
-from conductor import Conductor, EnvelopeA
+from conductor import Conductor, EnvelopeA, SuperAHR
 from conductordriver import ConductorDriver
 
 def midi_uart_config():
@@ -16,7 +17,9 @@ def x():
     vs2 = VolcaSample2(midi)
     return Conductor(vs2, [x for x in range(0, 8)],
                      {MIDI.LEVEL: EnvelopeA(100, 64),
-                      MIDI.SPEED: lambda s, rt, bs, ps: (ps[0] >> 5) - 16})
+                      MIDI.SPEED: SuperAHR(0, 64, 40, 500, 1000, 500, "*", random.randint),
+                      MIDI.START_POINT: SuperAHR(None, 0, 120, 1000, 0, 0, None, random.randint)},
+                      lambda s, ct, rt, bs, ps: min(1000, max(40, (ps[0] + (random.randint(-(ps[1]), ps[1]))) * bs[1])))
 
 def y(c):
     return ConductorDriver(c,
