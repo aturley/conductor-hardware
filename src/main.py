@@ -15,11 +15,16 @@ def x():
     uart = midi_uart_config()
     midi = MIDI(uart)
     vs2 = VolcaSample2(midi)
+        
     return Conductor(vs2, [x for x in range(0, 8)],
-                     {MIDI.LEVEL: EnvelopeA(100, 64),
-                      MIDI.SPEED: SuperAHR(0, 64, 40, 500, 1000, 500, "*", random.randint),
-                      MIDI.START_POINT: SuperAHR(None, 0, 120, 1000, 0, 0, None, random.randint)},
-                      lambda s, ct, rt, bs, ps: min(1000, max(40, (ps[0] + (random.randint(-(ps[1]), ps[1]))) * bs[1])))
+                     {MIDI.LEVEL: SuperAHR(0, 60, 50, 200, 1000, 200, None, random.randint),
+                      MIDI.PITCH_EG_INTENSITY: SuperAHR(1, 63, 5, 500, 2000, 5000, "*", random.randint),
+                      MIDI.SPEED: lambda s, ct, rt, bs, ps: min(127, ps[1] >> 3),
+                      MIDI.AMP_EG_ATTACK: lambda s, ct, rt, bs, ps: min(127, ps[2] >> 5),
+                      MIDI.AMP_EG_DECAY: lambda s, ct, rt, bs, ps: min(127, ps[2] >> 5),
+                      MIDI.PAN: SuperAHR(1, 63, 50, 2800, 100, 100, "*", random.randint),
+                      MIDI.START_POINT: lambda s, ct, rt, bs, ps: min(127, ps[0] >> 3)},
+                      SuperAHR(1, 20, 40, 1000, 2000, 1000, "+", random.randint))
 
 def y(c):
     return ConductorDriver(c,
