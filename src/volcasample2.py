@@ -24,7 +24,8 @@ class MIDI:
 
     def set_param(self, voices, param, value):
         for v in voices:
-            _ = self.uart.write(bytes([0xB0 + v, param, value]))
+            if (param >= 0) and (param < 128) and (value >= 0) and (value < 128):
+                _ = self.uart.write(bytes([0xB0 + v, param, value]))
 
     def note_on(self, voices):
         for v in voices:
